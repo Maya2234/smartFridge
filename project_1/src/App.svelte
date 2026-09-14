@@ -10,7 +10,9 @@
   </div>
   <div>
     <h1>Project 1: Smart Fridge</h1>
-    <p>Maya Tomarchio</p>
+    <div id="info-row">
+    <p>Maya Tomarchio</p>  <a id="readme-link" href="https://github.com/Maya2234/smartFridge/blob/main/README.md" target="_blank">Read Me</a>
+    </div>
   </div>
   <!--<Counter />-->
 </section>

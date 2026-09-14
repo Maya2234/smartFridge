@@ -30,6 +30,22 @@
   }
 }
 
+#readme-link {
+  color: #fd2bc5;
+  font-size: 16px;
+}
+
+#info-row {
+  display: flex;
+  justify-content: center;
+  gap: 100px;
+  width: 100%;
+}
+
+#info-row > * {
+  margin: 0; 
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
