@@ -1,19 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Mr+De+Haviland&display=swap');
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
   --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -30,6 +24,78 @@
   }
 }
 
+#timer{
+  background-color: #eec2de;
+
+  width: min(90vw, 360px);
+  max-height: 80vh;
+  padding: 0.75rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(calc(-50% + var(--drag-x, 0px)), calc(-50% + var(--drag-y, 0px)));
+  cursor: grab;
+  touch-action: none;
+}
+
+#timer form #timer-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+#timer.dragging {
+  cursor: grabbing;
+}
+
+#timer main {
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#timer main > svg {
+  width: min(100%, 140px);
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 0.5rem;
+}
+
+#timer main > div button {
+  font-size: 0.65rem;
+}
+
+#timer main > div button:nth-of-type(2) {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.65rem;
+}
+
+#timer form {
+  gap: 0;
+}
+
+#timer form button {
+  font-size: 1rem;
+}
+
+#timer form button:last-of-type {
+  margin: 12%;
+  padding: 12%;
+}
+
+#timer form svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0;
+}
+
 #readme-link {
   color: #fd2bc5;
   font-size: 16px;
@@ -40,10 +106,11 @@
   justify-content: center;
   gap: 100px;
   width: 100%;
+  align-items: flex-start;
 }
 
 #info-row > * {
-  margin: 0; 
+  margin: 0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -52,17 +119,6 @@
     --text-h: #f3f4f6;
     --bg: #16171d;
     --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
   }
 }
 
@@ -70,8 +126,7 @@ body {
   margin: 0;
 }
 
-h1,
-h2 {
+h1 {
   font-family: var(--heading);
   font-weight: 500;
   color: var(--text-h);
@@ -86,90 +141,8 @@ h1 {
     margin: 20px 0;
   }
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
 p {
   margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
-}
-
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-}
-
-.hero {
-  position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
 }
 
 #app {
@@ -187,10 +160,12 @@ code {
 #center {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   gap: 25px;
-  place-content: center;
-  place-items: center;
+  align-items: center;
   flex-grow: 1;
+  max-height:max-content;
+  padding: 2rem 0rem 5rem 0rem;
 
   @media (max-width: 1024px) {
     padding: 32px 20px 24px;
@@ -198,10 +173,80 @@ code {
   }
 }
 
-#next-steps {
+#fridge_UI {
+  position:relative;
+  min-height: 30rem;
+  border: 3px solid black;
+}
+
+#fridge_UI li {
+  position: relative;
+}
+
+#temperature-slider {
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  transform: translateY(-50%);
+  margin-right: 0.5rem;
+}
+
+.recommended-note {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.clock{
+  display: inline-block;
+  font-size: 3rem;
+  font-weight: bold;
+  color:black;
+  padding: 2rem;
+}
+
+.icon{
+  background-color: transparent;
+  border: none;
+  color:black;
+  font-size: 2rem;
+  
+}
+
+
+.settings-icon{
+  position:absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0;
+  margin: 0;
+  border: none;
+  line-height: 1;
+  background-color: transparent;
+  color:black;
+  font-size: 2rem;
+}
+
+.decor{
+  font-size:15rem;
+  font-family: 'Mr De Haviland', cursive;
+  color: rgb(255, 17, 160);
+  transform: rotate(20deg);
+  padding:9rem;
+  margin:0;
+  position:absolute;
+  top: 8%;
+  left: 8%;
+
+}
+
+#prototype {
   display: flex;
   border-top: 1px solid var(--border);
-  text-align: left;
+  text-align: center;
 
   & > div {
     flex: 1 1 0;
@@ -232,53 +277,9 @@ code {
   }
 }
 
-#next-steps ul {
+ul {
   list-style: none;
   padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
 }
 
 #spacer {
