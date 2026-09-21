@@ -1,9 +1,8 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
   import { fly } from 'svelte/transition';
 
-  const dispatch = createEventDispatcher();
   export let value = '';
+  export let onSubmit = () => {};
 
   /** @param {number} v */
   const select = (v) => {
@@ -14,7 +13,7 @@
   };
 
   function handleSubmit() {
-    dispatch('submit');
+    onSubmit();
   }
 </script>
 

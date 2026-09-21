@@ -56,7 +56,7 @@
   </button>
 </header>
 
-<Input bind:value on:submit={handleSubmit} />
+<Input bind:value onSubmit={handleSubmit} />
 
 <style>
   header {

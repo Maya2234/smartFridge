@@ -32,7 +32,7 @@
   /** @param {PointerEvent} event */
   function startTimerDrag(event) {
     const target = event.target;
-    if (target instanceof HTMLElement && target.closest('button, input, form')) return;
+    if (target instanceof Element && target.closest('button, input, form')) return;
 
     isDragging = true;
     dragStart = {

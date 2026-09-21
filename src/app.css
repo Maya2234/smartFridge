@@ -102,10 +102,12 @@
 }
 
 #info-row {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
   display: flex;
-  justify-content: center;
-  gap: 100px;
-  width: 100%;
+  flex-direction: column;
+  gap: 1rem;
   align-items: flex-start;
 }
 
@@ -158,6 +160,7 @@ p {
 }
 
 #center {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
