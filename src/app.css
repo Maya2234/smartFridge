@@ -8,6 +8,7 @@
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --theme-color: rgb(255, 17, 160);
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
@@ -24,21 +25,78 @@
   }
 }
 
-#timer{
-  background-color: #eec2de;
+#settings #close {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+}
 
+.grocery-app {
+  max-width: 400px;
+  position: relative;
+  z-index: 10;
+  background: var(--bg);
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: sans-serif;
+}
+
+form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+input[type="text"] {
+  flex: 1;
+  padding: 0.5rem;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.completed .item-name {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--theme-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+#timer {
+  background-color: #eec2de;
   width: min(90vw, 360px);
   max-height: 80vh;
   padding: 0.75rem;
   box-sizing: border-box;
   overflow-y: auto;
-
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(calc(-50% + var(--drag-x, 0px)), calc(-50% + var(--drag-y, 0px)));
   cursor: grab;
   touch-action: none;
+}
+
+#timer.dragging {
+  cursor: grabbing;
 }
 
 #timer form #timer-button {
@@ -47,10 +105,6 @@
   padding: 0;
   margin: 0;
   cursor: pointer;
-}
-
-#timer.dragging {
-  cursor: grabbing;
 }
 
 #timer main {
@@ -131,22 +185,16 @@ body {
 h1 {
   font-family: var(--heading);
   font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
   font-size: 56px;
+  color: var(--text-h);
   letter-spacing: -1.68px;
   margin: 32px 0;
+
   @media (max-width: 1024px) {
     font-size: 36px;
     margin: 20px 0;
   }
 }
-p {
-  margin: 0;
-}
-
 #app {
   width: 1126px;
   max-width: 100%;
@@ -177,7 +225,8 @@ p {
 }
 
 #fridge_UI {
-  position:relative;
+  position: relative;
+  overflow:hidden;
   min-height: 30rem;
   border: 3px solid black;
 }
@@ -203,25 +252,23 @@ p {
   white-space: nowrap;
 }
 
-.clock{
+.clock {
   display: inline-block;
   font-size: 3rem;
   font-weight: bold;
-  color:black;
+  color: black;
   padding: 2rem;
 }
 
-.icon{
+.icon {
   background-color: transparent;
   border: none;
-  color:black;
+  color: black;
   font-size: 2rem;
-  
 }
 
-
-.settings-icon{
-  position:absolute;
+.settings-icon {
+  position: absolute;
   top: 1rem;
   right: 1rem;
   padding: 0;
@@ -229,21 +276,68 @@ p {
   border: none;
   line-height: 1;
   background-color: transparent;
-  color:black;
+  color: black;
   font-size: 2rem;
 }
 
-.decor{
-  font-size:15rem;
+.decor-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.decor {
+  font-size: 15rem;
   font-family: 'Mr De Haviland', cursive;
-  color: rgb(255, 17, 160);
-  transform: rotate(20deg);
-  padding:9rem;
-  margin:0;
-  position:absolute;
+  color: var(--theme-color);
+  transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) rotate(20deg);
+  padding: 9rem;
+  margin: 0;
+  position: absolute;
   top: 8%;
   left: 8%;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
 
+.decor.dragging {
+  cursor: grabbing;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 1rem;
+}
+
+.swatch {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.text-swatch {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.swatch.active {
+  outline: 3px solid #7a4fd6;
+  outline-offset: 2px;
+}
+
+.text-swatch.active {
+  outline: 3px solid #7a4fd6;
+  outline-offset: 2px;
 }
 
 #prototype {
@@ -280,11 +374,6 @@ p {
   }
 }
 
-ul {
-  list-style: none;
-  padding: 0;
-}
-
 #spacer {
   height: 88px;
   border-top: 1px solid var(--border);
@@ -313,4 +402,51 @@ ul {
     right: 0;
     border-right-color: var(--border);
   }
+}
+
+/*-------------Settings Overlay----------------*/
+#settings {
+  box-sizing: border-box;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.5rem;
+  width: 80%;
+  height: 80%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(calc(-50% + var(--drag-x, 0px)), calc(-50% + var(--drag-y, 0px)));
+  z-index: 10;
+  background-color: white;
+  border: 3px solid black;
+  cursor: grab;
+  touch-action: none;
+}
+
+#settings.dragging {
+  cursor: grabbing;
+}
+
+#settings h1 {
+  font-size: 3rem;
+  margin: 0;
+  padding: 1rem;
+}
+
+.setting-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.setting-row input[type="text"],
+.setting-row select {
+  flex: 1 1 8rem;
+  min-width: 0;
+  max-width: 60%;
 }
