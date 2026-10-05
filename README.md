@@ -12,9 +12,9 @@ shows inside temprature
 displays time
 
 ### User needs
-What do you find yourself needing in the kitchen that is typically difficult or inconvient to actually preform?
-Could you benefit from an additional internent capable device in your kitchen?
-how do you currently set timers and view the time in the kitchen? Does that work well for you?
+- What do you find yourself needing in the kitchen that is typically difficult or inconvient to actually preform?
+- Could you benefit from an additional internent capable device in your kitchen?
+- how do you currently set timers and view the time in the kitchen? Does that work well for you?
 
 I learned that often times users need to set timers and check the time in the kitchen when often is in an unknown location or inacessible. Additionally, many manually timed devices in the kitchen (oven, microwave) often become out of sync with the actual time due to lack of internet access. Users often recognize items needed to be added to the grocery list when in the kitchen and unable to actually preform the action. When phone is in hand, the need has been forgotten.
 
