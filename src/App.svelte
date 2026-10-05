@@ -9,7 +9,10 @@
   let showTimer = $state(false);
   let showSettings = $state(false);
   let showList = $state(false);
+  let settingsView = $state('display');   // display or schedule
+  let toBuy = $state(false);
 
+  //temprature slider values
   let min = 1;
   let max = 6;
   let step = 0.5;
@@ -22,9 +25,10 @@
   let dragPositions = $state({
     timer: { x: 0, y: 0 },
     settings: { x: 0, y: 0 },
-    decor: { x: 0, y: 0 }
+    decor: { x: 0, y: 0 },
+    groceries: { x: 0, y: 0 }
   });
-  /** @type {'timer' | 'settings' | 'decor' | null} */
+  /** @type {'timer' | 'settings' | 'decor' | 'groceries' | null} */
   let activeDrag = $state(null);
   let dragStart = { x: 0, y: 0 };
 
@@ -65,13 +69,128 @@
   let newItemName = $state('');
   let itemsLeft = $derived(groceries.filter(item => !item.bought).length);
 
-  onMount(() => {
-    const clock = setInterval(() => {
-      currentTime = new Date();
-    }, 1000);
+  /** @type {{id:number, template: string, time: string}[]} */
+  let schedules = $state([]);          // { id, template, time }
+  let scheduleTemplate = $state('');
+  let scheduleTime = $state('');       // "HH:MM" from <input type="time">
+  let lastCheckedTime = '';            // plain variable, doesn't need $state
 
-    return () => clearInterval(clock);
-  });
+  let simulating = $state(false);
+  let simMinutes = $state(0);          // 0 to 1439 = minutes since midnight
+
+  const SIM_SECONDS = 120;             // how long a full day takes
+  const TICK_MS = 100;                 // how often the sim clock updates
+  const MINUTES_PER_TICK = 1440 / ((SIM_SECONDS * 1000) / TICK_MS);   // 1.2
+  let simElapsedSeconds = $derived(Math.floor((simMinutes / 1440) * SIM_SECONDS));
+
+/** @type {ReturnType<typeof setInterval> | undefined} */
+  let simTimer;
+/** @type {{ color: string, text: string, textColor: string } | null} */
+  let savedLook = null;
+
+  /** @param {Date} d */
+function localTime(d) {
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function addSchedule() {
+  if (!scheduleTemplate || !scheduleTime) return;
+
+  schedules = [
+    ...schedules,
+    { id: Date.now(), template: scheduleTemplate, time: scheduleTime }
+  ].sort((a, b) => a.time.localeCompare(b.time));
+  scheduleTime = '';
+}
+
+/** @param {number} id */
+function deleteSchedule(id) {
+  schedules = schedules.filter(s => s.id !== id);
+}
+
+/** @param {Date} now */
+function checkSchedules(now) {
+  const time = localTime(now);
+  if (time === lastCheckedTime) return;   // still the same minute, already handled
+  lastCheckedTime = time;
+
+  for (const s of schedules) {
+    if (s.time === time) {
+      applyTemplate(s.template);
+      selectedTemplate = s.template;
+    }
+  }
+}
+  let displayTime = $derived.by(() => {
+  if (!simulating) return currentTime;
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setMinutes(Math.floor(simMinutes));
+  return d;
+});
+
+
+/** @param {number} m */
+function minutesToTime(m) {
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+}
+
+/** @param {string} time */
+function runSchedulesFor(time) {
+  for (const s of schedules) {
+    if (s.time === time) {
+      applyTemplate(s.template);
+      selectedTemplate = s.template;
+    }
+  }
+}
+
+function startSimulation() {
+  if (simulating) return;
+
+  savedLook = { color: selectedColor, text: decorText, textColor: decorTextColor };
+  simMinutes = 0;
+  simulating = true;
+  runSchedulesFor('00:00');
+
+  simTimer = setInterval(() => {
+    const prev = Math.floor(simMinutes);
+    const next = simMinutes + MINUTES_PER_TICK;
+
+    // fire every minute we just passed over, not just the one we landed on
+    const last = Math.min(Math.floor(next), 1439);
+    for (let m = prev + 1; m <= last; m++) runSchedulesFor(minutesToTime(m));
+
+    if (next >= 1440) {
+      stopSimulation();
+    } else {
+      simMinutes = next;
+    }
+  }, TICK_MS);
+}
+
+function stopSimulation() {
+  clearInterval(simTimer);
+  simulating = false;
+  if (savedLook) {
+    selectedColor = savedLook.color;
+    decorText = savedLook.text;
+    decorTextColor = savedLook.textColor;
+    savedLook = null;
+  }
+}
+
+onMount(() => {
+  const clock = setInterval(() => {
+    currentTime = new Date();
+    if (!simulating) checkSchedules(currentTime);   // real schedules pause during a sim
+  }, 1000);
+
+  return () => {
+    clearInterval(clock);
+    clearInterval(simTimer);                        // don't leave the sim running if the page unmounts
+  };
+});
 
   /** @param {'timer' | 'settings' | 'groceries'} overlay */
   function bringOverlayToFront(overlay) {
@@ -89,11 +208,8 @@
     }
   }
 
-  /** @param {PointerEvent} event @param {'timer' | 'settings' | 'decor'} draggable */
+  /** @param {PointerEvent} event @param {'timer' | 'settings' | 'decor' | 'groceries'} draggable */
   function startDrag(event, draggable) {
-    if (draggable === 'timer' || draggable === 'settings') {
-      bringOverlayToFront(draggable);
-    }
 
     const target = event.target;
     if (target instanceof Element && target.closest('button, input, select, textarea, form')) return;
@@ -128,11 +244,15 @@
 
     groceries = [...groceries, { name: newItemName.trim(), bought: false }];
     newItemName = '';
+
+    toBuy = true;
+
   }
 
   /** @param {string} name */
   function deleteItem(name) {
     groceries = groceries.filter(item => item.name !== name);
+    if (groceries.length === 0) toBuy = false;
   }
 
   /** @param {string} name */
@@ -186,6 +306,23 @@
     <svg class="icon" role="presentation" aria-hidden="true">
     </svg>
     <p></p>
+    <b style="text-align:center; display: block; margin:0;">SIMULATE</b>
+    {#if !simulating}
+    <div style="text-align: center;">
+    <button class="sim-buttons" style="width:3rem;height:3rem; border-radius: 50%;" onclick={startSimulation}>▶</button>
+    </div>
+    {:else}
+    <div class="sim-controls">
+      <button class="sim-buttons" style="width:3rem;height:3rem; border-radius: 50%;" onclick={stopSimulation}>■</button>
+      <div class="sim-progress" aria-hidden="true">
+        <div class="sim-progress-fill" style:width={`${(simMinutes / 1440) * 100}%`}></div>
+      </div>
+      <span class="sim-time">
+        {String(Math.floor(simElapsedSeconds / 60)).padStart(2, '0')}:{String(simElapsedSeconds % 60).padStart(2, '0')} / 02:00
+      </span>
+    </div>
+    {/if}
+    <br>
     <section id="fridge_UI" style:background-color={selectedColor}>
 
       <!-- Settings overlay -->
@@ -204,6 +341,10 @@
         >
           <h1>Settings</h1>
           <button id="close" onclick={() => (showSettings = !showSettings)}>X</button>
+
+
+           {#if settingsView === 'display'}
+            <!-- background color, decor text, decor text color, template dropdown, save form -->
 
           <div class="setting-row">
             <label for="theme-color">Background Color:</label>
@@ -278,12 +419,37 @@
               placeholder="template name..."
             />
             <button type="submit">Save current as template</button>
-          </form>
+            
+          </form><div>
+            <button class="setting-row schedule" type="submit" onclick={() => (settingsView = 'schedule')}>Template Schedule</button></div>
+          {:else}
+            <!-- SCHEDULE TEMPLTES-->
+            <h2 style="margin-right: auto;">Template Schedule</h2>
+            <form class="setting-row" onsubmit={(event) => {event.preventDefault(); addSchedule(); }}>
+              <select bind:value={scheduleTemplate}>
+                <option value="" disabled>Template…</option>
+                {#each templates as template (template.name)}
+                  <option value={template.name}>{template.name}</option>
+                {/each}
+              </select>
+              <input type="time" bind:value={scheduleTime} />
+              <button type="submit">Add</button>
+            </form>
+        <div class="schedule-list">
+            {#each schedules as s (s.id)}
+              <div class="schedule-item">
+                <span>{s.time}: {s.template}</span>
+                <button onclick={() => deleteSchedule(s.id)}>&times;</button>
+              </div>
+            {/each}           
+          </div>
+            <button style="  margin-top: auto;  align-self: flex-start;" onclick={() => (settingsView = 'display')}>← Back</button>
+          {/if}
         </div>
       {/if}
 
       <time class="clock">
-        {currentTime.toLocaleTimeString([], {
+        {displayTime.toLocaleTimeString([], {
           hour: 'numeric',
           minute: '2-digit'
         })}
@@ -330,15 +496,24 @@
         <li>
           {#if showTemperature}
             <div id="temperature-slider">
-              <label for="temperature-slider">{sliderValue}°C</label>
+              <label
+                id="temperature-label"
+                for="temperature-slider"
+                class:recommended={sliderValue === 4}>
+
+                {sliderValue}°C
+              </label>
               <input
                 type="range"
                 min={min}
                 max={max}
                 step={step}
                 bind:value={sliderValue}
+                aria-valuetext={sliderValue === 4 ? 'recommended temperature' : undefined}
               />
-            </div>
+              {#if sliderValue === 4}
+                <span id="temperature-label" class="recommended">*Recommended</span>
+              {/if}            </div>
           {/if}
           <button
             class="icon icon list"
@@ -348,16 +523,17 @@
         </li>
         <li>
           <button
-            class="icon icon list"
+            class="icon icon list grocery-icon"
             aria-label="Grocery List"
             onclick={() => (showList = !showList)}
-          >✎</button>
+          >
+            ✎
+            {#if toBuy}
+              <span class="grocery-badge" aria-hidden="true">{itemsLeft}</span>
+            {/if}
+          </button>
         </li>
       </ul>
-
-      {#if showTemperature}
-        <p class="recommended-note">*recommended temperature: 4°C</p>
-      {/if}
 
       {#if showTimer}
         <div
@@ -388,14 +564,18 @@
           {/if}
         </div>
       {/if}
-
       {#if showList}
         <div
           class="grocery-app"
+          class:dragging={activeDrag === 'groceries'}
+          style={`--drag-x: ${dragPositions.groceries.x}px; --drag-y: ${dragPositions.groceries.y}px; z-index: ${groceriesZIndex}`}
+          onpointerdown={(event) => startDrag(event, 'groceries')}
+          onpointermove={moveDrag}
+          onpointerup={stopDrag}
+          onpointercancel={stopDrag}
           role="dialog"
           tabindex="-1"
           style:z-index={groceriesZIndex}
-          onpointerdown={() => bringOverlayToFront('groceries')}
         >
           <h2>Groceries</h2>
 

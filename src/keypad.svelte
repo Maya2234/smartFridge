@@ -67,17 +67,6 @@
     position: relative;
   }
 
-  header::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: currentColor;
-    opacity: 0.3;
-  }
-
   h1 {
     font-size: 1.75rem;
     flex-grow: 1;
@@ -89,7 +78,7 @@
   }
 
   h1.translucent {
-    opacity: 0.3;
+    opacity: 0.6;
   }
 
   h1 :global(span) {

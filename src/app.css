@@ -25,12 +25,6 @@
   }
 }
 
-#settings #close {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-}
-
 .grocery-app {
   max-width: 400px;
   position: relative;
@@ -41,12 +35,19 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   font-family: sans-serif;
+  transform: translate(var(--drag-x, 0px), var(--drag-y, 0px));
+  cursor: grab;
+  touch-action: none;
 }
 
 form {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
+}
+
+.grocery-app.dragging {
+  cursor: grabbing;
 }
 
 input[type="text"] {
@@ -80,14 +81,17 @@ li {
   cursor: pointer;
 }
 
-#timer {
-  background-color: #eec2de;
+#timer {  
+  max-width: 300px;
+  position: relative;
+  z-index: 10;
+  background: var(--bg);
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: sans-serif;
   width: min(90vw, 360px);
-  max-height: 80vh;
-  padding: 0.75rem;
-  box-sizing: border-box;
-  overflow-y: auto;
-  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(calc(-50% + var(--drag-x, 0px)), calc(-50% + var(--drag-y, 0px)));
@@ -195,6 +199,7 @@ h1 {
     margin: 20px 0;
   }
 }
+
 #app {
   width: 1126px;
   max-width: 100%;
@@ -207,6 +212,39 @@ h1 {
   box-sizing: border-box;
 }
 
+.sim-buttons{
+  margin: 1rem 0;
+  border-radius: 8px;
+  padding:.5rem;
+}
+
+.sim-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.sim-progress {
+  position: relative;
+  flex: 1 1 8rem;
+  min-width: 8rem;
+  height: 0.5rem;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sim-time {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.sim-progress-fill {
+  height: 100%;
+  background: #7a4fd6;       /* or var(--theme-color) */
+  transition: width 100ms linear;
+}
 #center {
   position: relative;
   display: flex;
@@ -215,8 +253,8 @@ h1 {
   gap: 25px;
   align-items: center;
   flex-grow: 1;
-  max-height:max-content;
-  padding: 2rem 0rem 5rem 0rem;
+  max-height: max-content;
+  padding: 2rem 0 5rem;
 
   @media (max-width: 1024px) {
     padding: 32px 20px 24px;
@@ -225,14 +263,33 @@ h1 {
 }
 
 #fridge_UI {
+  box-sizing: border-box;
   position: relative;
-  overflow:hidden;
-  min-height: 30rem;
+  overflow: hidden;
+  height: 35rem;
   border: 3px solid black;
 }
 
 #fridge_UI li {
   position: relative;
+}
+
+.schedule-list {
+  flex: 1 1 0;               /* fill the leftover height between the form and Back button */
+  min-height: 0;             /* lets it be shorter than its content */
+  display: flex;
+  flex-direction: column;    /* stack top to bottom... */
+  flex-wrap: wrap;           /* ...then start a new column when out of height */
+  align-content: flex-start; /* columns pack to the left instead of spreading out */
+  gap: 0.5rem 2rem;          /* row gap, column gap */
+  overflow-x: auto;          /* scroll sideways when columns run out of width */
+  overflow-y: hidden;
+}
+
+.schedule-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
 }
 
 #temperature-slider {
@@ -241,6 +298,10 @@ h1 {
   right: 100%;
   transform: translateY(-50%);
   margin-right: 0.5rem;
+}
+
+#temperature-label.recommended {
+  color: rgb(6, 174, 6);
 }
 
 .recommended-note {
@@ -265,6 +326,28 @@ h1 {
   border: none;
   color: black;
   font-size: 2rem;
+}
+
+.grocery-icon {
+  position: relative;
+}
+
+.grocery-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.3rem;
+  display: grid;
+  place-items: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.2rem;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: #d74343;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  line-height: 1;
 }
 
 .settings-icon {
@@ -343,7 +426,6 @@ h1 {
 #prototype {
   display: flex;
   border-top: 1px solid var(--border);
-  text-align: center;
 
   & > div {
     flex: 1 1 0;
@@ -434,6 +516,12 @@ h1 {
   font-size: 3rem;
   margin: 0;
   padding: 1rem;
+}
+
+#settings #close {
+  position: absolute;
+  top: -5px;
+  right: -5px;
 }
 
 .setting-row {
