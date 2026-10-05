@@ -1,4 +1,3 @@
-###project write up
 # Smart Fridge Interface
 This project is meant to simulate a UI for any refrigerator for the purpose of aiding the user in having access to internet features in the kitchen. Functionality includes timers, temprature controls, grocery list, and decorative settings.
 
