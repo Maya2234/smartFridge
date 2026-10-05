@@ -37,9 +37,9 @@ The settings menu offers options for background color, background text, and text
 
 ## Future Work
 
--Audio (music, timer audio, custom template switch audio)
--send grocery list to iphone, or make collaborative with mobile
---sticky note feature
+- Audio (music, timer audio, custom template switch audio)
+- send grocery list to iphone, or make collaborative with mobile
+- sticky note feature
 
 ---
 
