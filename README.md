@@ -46,5 +46,3 @@ The settings menu offers options for background color, background text, and text
 ## AI Documentation
 
 I used claude and copilot for assistance in explaining concepts in svelte and troubleshooting performance issues.
-
-```
