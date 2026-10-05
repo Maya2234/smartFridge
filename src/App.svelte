@@ -17,6 +17,9 @@
   let max = 6;
   let step = 0.5;
 
+  let timerOffset = $state(1);
+  let timerRunning = $state(false);
+
   let topOverlayZIndex = $state(10);
   let timerZIndex = $state(10);
   let settingsZIndex = $state(10);
@@ -210,6 +213,9 @@ onMount(() => {
 
   /** @param {PointerEvent} event @param {'timer' | 'settings' | 'decor' | 'groceries'} draggable */
   function startDrag(event, draggable) {
+    if (draggable !== 'decor') {
+      bringOverlayToFront(draggable);
+    }
 
     const target = event.target;
     if (target instanceof Element && target.closest('button, input, select, textarea, form')) return;
@@ -219,10 +225,6 @@ onMount(() => {
       x: event.clientX - dragPositions[draggable].x,
       y: event.clientY - dragPositions[draggable].y
     };
-
-    if (event.currentTarget instanceof HTMLElement) {
-      event.currentTarget.setPointerCapture(event.pointerId);
-    }
   }
 
   /** @param {PointerEvent} event */
@@ -492,6 +494,21 @@ onMount(() => {
               showTimer = !showTimer;
             }}
           >⏲</button>
+          {#if timerRunning}
+            <svg class="timer-ring" viewBox="-50 -50 100 100" aria-hidden="true">
+              <circle r="46" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="5" />
+              <path
+                d="M 0 -46 a 46 46 0 0 0 0 92 46 46 0 0 0 0 -92"
+                fill="none"
+                stroke="hsl(208, 100%, 50%)"
+                stroke-width="5"
+                stroke-linecap="round"
+                pathLength="1"
+                stroke-dasharray="1"
+                stroke-dashoffset={timerOffset}
+              />
+            </svg>
+          {/if}
         </li>
         <li>
           {#if showTemperature}
@@ -535,7 +552,6 @@ onMount(() => {
         </li>
       </ul>
 
-      {#if showTimer}
         <div
           id="timer"
           role="dialog"
@@ -547,23 +563,28 @@ onMount(() => {
           onpointermove={moveDrag}
           onpointerup={stopDrag}
           onpointercancel={stopDrag}
+          style:display={showTimer ? undefined : 'none'}
         >
           {#if countdown}
-            <Timer
-              on:new={() => {
-                countdown = 0;
-              }}
-              {countdown}
-            />
+          <Timer
+            on:new={() => {
+              timerRunning = false;
+              countdown = 0;
+            }}
+            on:runningChange={(event) => (timerRunning = event.detail)}
+            {countdown}
+            bind:progress={timerOffset}
+          />
           {:else}
-            <Keypad
-              on:countdown={(event) => {
-                countdown = event.detail;
-              }}
-            />
+          <Keypad
+            on:countdown={(event) => {
+              timerOffset = 1;          // start with an empty ring
+              countdown = event.detail;
+              timerRunning = true;
+            }}
+          />
           {/if}
         </div>
-      {/if}
       {#if showList}
         <div
           class="grocery-app"
@@ -611,6 +632,8 @@ onMount(() => {
         </div>
       {/if}
     </section>
+
+    
   </div>
 </section>
 

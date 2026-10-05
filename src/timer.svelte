@@ -21,7 +21,10 @@
   }
 
   let interval = setInterval(updateTimer, 1000);
-  $: if (count === 0) clearInterval(interval);
+  $: if (count === 0) {
+    clearInterval(interval);
+    dispatch('runningChange', false);
+  }
 
   let isPaused = false;
   let isResetting = false;
@@ -35,6 +38,7 @@
 
   function handleNew() {
     clearInterval(interval);
+    dispatch('runningChange', false);
     dispatch('new');
   }
 
@@ -45,6 +49,7 @@
     offset.set(Math.max(count - 1, 0) / countdown);
     rotation.set((Math.max(count - 1, 0) / countdown) * 360);
     isPaused = false;
+    dispatch('runningChange', true);
   }
 
   function handlePause() {
@@ -52,6 +57,7 @@
     rotation.set((count / countdown) * 360);
     clearInterval(interval);
     isPaused = true;
+    dispatch('runningChange', false);
   }
 
   function handleReset() {
@@ -63,6 +69,7 @@
       now = Date.now();
       end = now + countdown * 1000;
       interval = setInterval(updateTimer, 1000);
+      dispatch('runningChange', true);
     });
   }
 
@@ -76,6 +83,9 @@
   onDestroy(() => {
     clearInterval(interval);
   });
+
+  export let progress = 1;
+$: progress = $offset;
 </script>
 
 <main>
@@ -119,10 +129,10 @@
   </svg>
 
   <div in:fly={{ y: -10, delay: 120 }}>
-    <button on:click={handleNew}>New timer</button>
+    <button style="border: 2px solid #ccc; padding: 10px 20px; border-radius: 10px;" on:click={handleNew}>New timer</button>
 
     {#if isPaused}
-      <button aria-label="Start timer" disabled={isResetting || count === 0} on:click={handleStart}>
+      <button class="timer-icon-button" aria-label="Start timer" disabled={isResetting || count === 0} on:click={handleStart}>
 
         <svg viewBox="-50 -50 100 100" width="30" height="30">
           <g
@@ -137,7 +147,7 @@
         </svg>
       </button>
     {:else}
-      <button aria-label="Pause timer" disabled={isResetting || count === 0} on:click={handlePause}>
+      <button class="timer-icon-button" aria-label="Pause timer" disabled={isResetting || count === 0} on:click={handlePause}>
         <svg viewBox="-50 -50 100 100" width="30" height="30">
           <g
             fill="none"
@@ -152,6 +162,8 @@
       </button>
     {/if}
 
-    <button on:click={handleReset}>Reset timer</button>
+    
+
+    <button style="border: 2px solid #ccc; padding: 10px 20px; border-radius: 10px;" on:click={handleReset}>Reset timer</button>
   </div>
 </main>

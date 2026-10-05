@@ -129,10 +129,21 @@ li {
   font-size: 0.65rem;
 }
 
-#timer main > div button:nth-of-type(2) {
+
+
+#timer main > div button.timer-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  padding: 0.65rem;
+  padding: 0;
+  vertical-align: middle;
+}
+
+#timer main > div button.timer-icon-button svg {
+  display: block;
+  flex: none;
 }
 
 #timer form {
@@ -272,6 +283,21 @@ h1 {
 
 #fridge_UI li {
   position: relative;
+}
+
+.icon-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.timer-ring {
+  position: absolute;
+  top: 64%;
+  left: 106%;
+  width: 2rem;
+  height: 2rem;
+  transform: translate(-50%, -50%);   /* centers the ring on the icon */
+  pointer-events: none;               /* clicks pass through to the button */
 }
 
 .schedule-list {
