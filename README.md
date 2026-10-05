@@ -18,8 +18,7 @@ displays time
 
 I learned that often times users need to set timers and check the time in the kitchen when often is in an unknown location or inacessible. Additionally, many manually timed devices in the kitchen (oven, microwave) often become out of sync with the actual time due to lack of internet access. Users often recognize items needed to be added to the grocery list when in the kitchen and unable to actually preform the action. When phone is in hand, the need has been forgotten.
 
-### User needs
-
+User needs:
 Easy way to add, remove and view shopping list as well as timers. Options to customize display for aestetic purposes. 
 
 ### Feedback on the sketch
